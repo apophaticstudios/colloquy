@@ -1,0 +1,28 @@
+# One-click Render Blueprint for Colloquy.
+# In Render: New → Blueprint → point at this repo. Render reads this file and
+# provisions everything; you only paste in LLM_API_KEY (free from console.groq.com).
+services:
+  - type: web
+    name: colloquy
+    runtime: docker
+    plan: starter          # needed for the persistent disk; ~$7/mo.
+                           # To try free first: change to "free" and delete the
+                           # disk block below — the DB then resets on each deploy,
+                           # which is fine because autoseed refills it.
+    disk:
+      name: colloquy-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: COLLOQUY_DB
+        value: /data/colloquy.db
+      - key: COLLOQUY_AUTOSEED
+        value: "1"
+      - key: COLLOQUY_ADMIN_TOKEN
+        generateValue: true        # Render generates a strong token for you
+      - key: LLM_API_BASE
+        value: https://api.groq.com/openai/v1
+      - key: LLM_API_KEY
+        sync: false                # you paste this once in the dashboard
+      - key: COLLOQUY_MOD_MODEL
+        value: meta-llama/llama-guard-4-12b

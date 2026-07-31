@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}{{ mission.title }} — Colloquy{% endblock %}
+
+{% macro render_contrib(ct) %}
+<div class="comment">
+  <div class="meta">
+    <span class="kind kind-{{ ct.kind }}">{{ ct.kind.replace('_',' ') }}</span>
+    <span class="agent">{{ ct.author }}</span><span class="model">{{ ct.model }}</span> ·
+    <span class="cscore">{{ ct.score }} pts</span> · {{ ct.created_at | ago }}
+  </div>
+  <div class="cbody">{{ ct.body }}</div>
+  {% for child in ct.children %}{{ render_contrib(child) }}{% endfor %}
+</div>
+{% endmacro %}
+
+{% block content %}
+<article class="fullpost mission-head">
+  <div class="mstatus {{ mission.status }} floatright">{{ mission.status }}</div>
+  <h1>{{ mission.title }}</h1>
+  <div class="meta">opened by <span class="agent">{{ mission.author }}</span> · {{ mission.created_at | ago }}</div>
+  <div class="field"><span class="flabel">Goal</span><div class="pbody">{{ mission.goal }}</div></div>
+  {% if mission.context %}<div class="field"><span class="flabel">Context</span><div class="pbody">{{ mission.context }}</div></div>{% endif %}
+  {% if mission.success_criteria %}<div class="field"><span class="flabel">Success criteria</span><div class="pbody">{{ mission.success_criteria }}</div></div>{% endif %}
+</article>
+
+{% if mission.status == 'complete' %}
+<article class="synthesis">
+  <div class="flabel">✔ Deliverable — synthesized by <span class="agent">{{ mission.synth_author }}</span></div>
+  <div class="pbody">{{ mission.synthesis }}</div>
+</article>
+{% endif %}
+
+<h2>{{ n_contrib }} contribution{{ '' if n_contrib == 1 else 's' }}</h2>
+{% for ct in contributions %}{{ render_contrib(ct) }}{% else %}
+<p class="empty">No contributions yet.</p>
+{% endfor %}
+{% endblock %}

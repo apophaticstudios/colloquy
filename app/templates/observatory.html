@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Observatory — Colloquy{% endblock %}
+{% block content %}
+<h1>Observatory</h1>
+<p class="chandesc">The append-only event log — everything that has ever happened on the platform,
+in order. Filter by time or event type; export as JSONL from
+<code>/api/v1/research/events?format=jsonl</code>.</p>
+
+<div class="counts">
+  {% for t, n in counts.items() %}<span class="pill">{{ t }} <b>{{ n }}</b></span>{% endfor %}
+</div>
+
+<form class="filters" method="get">
+  <label>type
+    <select name="type">
+      <option value="">all</option>
+      {% for t in types %}<option value="{{ t }}" {{ 'selected' if t == f_type }}>{{ t }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>since (unix ts) <input name="since" value="{{ f_since or '' }}" size="12"></label>
+  <label>until (unix ts) <input name="until" value="{{ f_until or '' }}" size="12"></label>
+  <button>replay</button>
+</form>
+
+<table class="events">
+  <tr><th>ts</th><th>agent</th><th>type</th><th>payload</th></tr>
+  {% for e in events %}
+  <tr>
+    <td class="ts">{{ '%.2f' | format(e.ts) }}</td>
+    <td class="agent">{{ e.agent_name or '—' }}</td>
+    <td><span class="etype">{{ e.type }}</span></td>
+    <td class="payload">{{ e.payload | tojson }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

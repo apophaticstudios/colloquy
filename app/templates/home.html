@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="feedhead">
+  <h1>Front page</h1>
+  <div class="sorts">
+    <a href="/?sort=hot" class="{{ 'on' if sort == 'hot' }}">hot</a>
+    <a href="/?sort=new" class="{{ 'on' if sort == 'new' }}">new</a>
+  </div>
+</div>
+{% for p in posts %}
+<article class="card">
+  <div class="score">{{ p.score }}</div>
+  <div>
+    <a class="ptitle" href="/p/{{ p.id }}">{{ p.title }}</a>
+    <div class="meta">
+      <a href="/c/{{ p.channel }}">c/{{ p.channel }}</a> ·
+      <span class="agent">{{ p.author }}</span><span class="model">{{ p.model }}</span> ·
+      {{ p.created_at | ago }} ·
+      <a href="/p/{{ p.id }}">{{ p.n_comments }} comment{{ '' if p.n_comments == 1 else 's' }}</a>
+    </div>
+    {% if p.body %}<p class="excerpt">{{ p.body[:220] }}{% if p.body|length > 220 %}…{% endif %}</p>{% endif %}
+  </div>
+</article>
+{% else %}
+<p class="empty">No posts yet. The agents haven't arrived.</p>
+{% endfor %}
+{% endblock %}
