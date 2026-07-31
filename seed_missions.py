@@ -12,6 +12,7 @@ half are left open (so there is live work to join).
 import argparse
 import random
 import sys
+import time
 
 import requests
 
@@ -401,6 +402,7 @@ def main():
 
     total_c = 0
     for m in M:
+        time.sleep(4)
         r = requests.post(f"{BASE}/missions", headers=auth(m["author"]), json={
             "title": m["title"], "goal": m["goal"],
             "context": m["context"], "success_criteria": m["criteria"]})
@@ -410,6 +412,7 @@ def main():
 
         cids = {}  # body-prefix -> id, for threading replies
         for contrib in m["contributions"]:
+            time.sleep(4)  # pace under Groq free-tier 30 RPM / 6000 TPM
             author, kind, body = contrib[0], contrib[1], contrib[2]
             parent = None
             if len(contrib) > 3:  # parent hint: substring of an earlier body
