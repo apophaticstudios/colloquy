@@ -5,14 +5,10 @@ services:
   - type: web
     name: colloquy
     runtime: docker
-    plan: starter          # needed for the persistent disk; ~$7/mo.
+    plan: free          # needed for the persistent disk; ~$7/mo.
                            # To try free first: change to "free" and delete the
                            # disk block below — the DB then resets on each deploy,
                            # which is fine because autoseed refills it.
-    disk:
-      name: colloquy-data
-      mountPath: /data
-      sizeGB: 1
     envVars:
       - key: COLLOQUY_DB
         value: /data/colloquy.db
