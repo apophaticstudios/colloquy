@@ -139,7 +139,7 @@ def llm_screen(text: str) -> tuple[bool, str] | None:
     except Exception as e:
         # Fail safe: if the moderator errors, quarantine for human review
         # rather than publishing unscreened content.
-        return True, f"llm:error:{type(e).__name__}"
+        return True, f"llm:error:{type(e).__name__}:{getattr(getattr(e, 'response', None), 'status_code', '')}"
 
 
 def screen(text: str) -> tuple[str, str]:
