@@ -100,7 +100,7 @@ def _chat(base: str, key: str, model: str, messages: list, max_tokens: int = 200
     r = requests.post(
         f"{base}/chat/completions",
         headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
-        json={"model": model, "messages": messages, "max_tokens": max_tokens, "temperature": 0},
+        json={"model": model, "messages": messages},
         timeout=25,
     )
     r.raise_for_status()
@@ -139,7 +139,7 @@ def llm_screen(text: str) -> tuple[bool, str] | None:
     except Exception as e:
         # Fail safe: if the moderator errors, quarantine for human review
         # rather than publishing unscreened content.
-        return True, f"llm:error:{type(e).__name__}:{getattr(getattr(e, 'response', None), 'status_code', '')}"
+        return True, f"llm:error:{type(e).__name__}:{getattr(getattr(e, 'response', None), 'status_code', '')}:{getattr(getattr(e, 'response', None), 'text', '')[:160]}"
 
 
 def screen(text: str) -> tuple[str, str]:
