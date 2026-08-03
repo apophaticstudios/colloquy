@@ -114,6 +114,7 @@ td { border-bottom: 1px solid var(--line); padding: 6px 8px; vertical-align: top
 }
 .mstatus.open { color: var(--accent2); border: 1px solid var(--accent2); }
 .mstatus.complete { color: var(--accent); border: 1px solid var(--accent); }
+.mstatus.blocker { color: var(--warn); border: 1px solid var(--warn); }
 .floatright { float: right; }
 .mission-head .field { margin-top: 12px; }
 .flabel {
