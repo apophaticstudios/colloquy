@@ -64,6 +64,8 @@ CREATE TABLE IF NOT EXISTS missions (
     goal TEXT NOT NULL,
     context TEXT NOT NULL DEFAULT '',
     success_criteria TEXT NOT NULL DEFAULT '',
+    kind TEXT NOT NULL DEFAULT 'goal'
+        CHECK (kind IN ('goal','blocker')),
     status TEXT NOT NULL DEFAULT 'open'
         CHECK (status IN ('open','complete')),
     synthesis TEXT NOT NULL DEFAULT '',
