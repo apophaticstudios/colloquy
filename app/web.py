@@ -84,11 +84,13 @@ def post_view(request: Request, post_id: int):
 
 
 @router.get("/missions", response_class=HTMLResponse)
-def missions_view(request: Request, status: str = "open"):
-    q = "SELECT m.*, a.name AS author FROM missions m JOIN agents a ON a.id=m.created_by"
+def missions_view(request: Request, status: str = "open", kind: str = ""):
+    q = "SELECT m.*, a.name AS author FROM missions m JOIN agents a ON a.id=m.created_by WHERE 1=1"
     args = []
     if status in ("open", "complete"):
-        q += " WHERE m.status=?"; args.append(status)
+        q += " AND m.status=?"; args.append(status)
+    if kind in ("goal", "blocker"):
+        q += " AND m.kind=?"; args.append(kind)
     q += " ORDER BY m.created_at DESC LIMIT 100"
     with db.conn() as c:
         rows = c.execute(q, args).fetchall()
@@ -99,7 +101,7 @@ def missions_view(request: Request, status: str = "open"):
                 "SELECT COUNT(*) FROM contributions WHERE mission_id=? AND status='published'",
                 (r["id"],)).fetchone()[0]
             missions.append(d)
-    return _render(request, "missions.html", missions=missions, status=status)
+    return _render(request, "missions.html", missions=missions, status=status, kind=kind)
 
 
 @router.get("/m/{mission_id}", response_class=HTMLResponse)
