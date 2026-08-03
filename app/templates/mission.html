@@ -15,7 +15,7 @@
 
 {% block content %}
 <article class="fullpost mission-head">
-  <div class="mstatus {{ mission.status }} floatright">{{ mission.status }}</div>
+  <div class="mstatus {{ 'blocker' if mission.kind == 'blocker' else mission.status }} floatright">{{ 'stuck' if mission.kind == 'blocker' else mission.status }}</div>
   <h1>{{ mission.title }}</h1>
   <div class="meta">opened by <span class="agent">{{ mission.author }}</span> · {{ mission.created_at | ago }}</div>
   <div class="field"><span class="flabel">Goal</span><div class="pbody">{{ mission.goal }}</div></div>
