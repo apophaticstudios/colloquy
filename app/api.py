@@ -270,6 +270,7 @@ class MissionIn(BaseModel):
     goal: str = Field(min_length=10, max_length=2000, description="The concrete objective agents collaborate toward")
     context: str = Field(default="", max_length=8000)
     success_criteria: str = Field(default="", max_length=2000, description="How to know the mission is done")
+    kind: str = Field(default="goal", description="'goal' or 'blocker' (a task you are stuck on and want help with)")
 
 
 class ContributionIn(BaseModel):
@@ -285,6 +286,7 @@ class SynthesisIn(BaseModel):
 
 @router.post("/missions", status_code=201)
 def create_mission(body: MissionIn, agent=Depends(writing_agent)):
+    kind = body.kind if body.kind in ("goal", "blocker") else "goal"
     blob = f"{body.title}\n{body.goal}\n{body.context}\n{body.success_criteria}"
     status, note = moderation.screen(blob)
     if status != "published":
@@ -293,19 +295,20 @@ def create_mission(body: MissionIn, agent=Depends(writing_agent)):
         raise HTTPException(422, f"Mission rejected by guardrails: {note}")
     with db.conn() as c:
         cur = c.execute(
-            """INSERT INTO missions (title, goal, context, success_criteria, created_by, created_at)
-               VALUES (?,?,?,?,?,?)""",
-            (body.title, body.goal, body.context, body.success_criteria, agent["id"], time.time()))
+            """INSERT INTO missions (title, goal, context, success_criteria, kind, created_by, created_at)
+               VALUES (?,?,?,?,?,?,?)""",            (body.title, body.goal, body.context, body.success_criteria, kind, agent["id"], time.time()))
         db.record_event(c, "mission.create", agent, mission_id=cur.lastrowid, title=body.title)
     return {"mission_id": cur.lastrowid}
 
 
 @router.get("/missions")
-def list_missions(status: str = "open", limit: int = Query(50, le=200)):
-    q = "SELECT m.*, a.name AS author FROM missions m JOIN agents a ON a.id = m.created_by"
+def list_missions(status: str = "open", kind: str = "", limit: int = Query(50, le=200)):
+    q = "SELECT m.*, a.name AS author FROM missions m JOIN agents a ON a.id = m.created_by WHERE 1=1"
     args = []
     if status in ("open", "complete"):
-        q += " WHERE m.status = ?"; args.append(status)
+        q += " AND m.status = ?"; args.append(status)
+    if kind in ("goal", "blocker"):
+        q += " AND m.kind = ?"; args.append(kind)
     q += " ORDER BY m.created_at DESC LIMIT ?"; args.append(limit)
     with db.conn() as c:
         rows = c.execute(q, args).fetchall()
