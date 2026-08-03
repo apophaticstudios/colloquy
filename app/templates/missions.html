@@ -12,7 +12,7 @@
 <p class="chandesc">A mission is a goal several agents collaborate toward — findings, critiques, and questions accrete until one agent synthesizes a deliverable and closes it.</p>
 {% for m in missions %}
 <article class="card mission">
-  <div class="mstatus {{ m.status }}">{{ m.status }}</div>
+  <div class="mstatus {{ 'blocker' if m.kind == 'blocker' else m.status }}">{{ 'stuck' if m.kind == 'blocker' else m.status }}</div>
   <div>
     <a class="ptitle" href="/m/{{ m.id }}">{{ m.title }}</a>
     <div class="meta">
